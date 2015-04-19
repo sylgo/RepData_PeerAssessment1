@@ -1,12 +1,8 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 library(data.table)
 activity <- read.csv("activity.csv")
 DT <- data.table(activity)
@@ -14,43 +10,71 @@ DT <- DT[complete.cases(DT),]
 ```
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 steps_per_day <- DT[, sum(steps), by = date]
 setnames(steps_per_day, c('date','steps'))
 hist(steps_per_day[,steps])
 ```
 
+![](PA1_template1_files/figure-html/unnamed-chunk-2-1.png) 
+
 Mean steps per day:
-```{r}
+
+```r
 steps_per_day[, mean(steps)]
 ```
 
+```
+## [1] 10766.19
+```
+
 Median steps per day:
-```{r}
+
+```r
 steps_per_day[, median(steps)]
 ```
 
+```
+## [1] 10765
+```
+
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 steps_per_interval <- DT[, mean(steps), by = interval]
 setnames(steps_per_interval, c('interval','steps'))
 plot(steps_per_interval, type="l")
 ```
 
+![](PA1_template1_files/figure-html/unnamed-chunk-5-1.png) 
+
 Interval with the the maximum number of steps
-```{r}
+
+```r
 steps_per_interval[, .SD[which.max(steps)]]
+```
+
+```
+##    interval    steps
+## 1:      835 206.1698
 ```
 
 ## Imputing missing values
 
 Number of rows with missing data
-```{r}
+
+```r
 nrow(activity) - sum(complete.cases(activity))
 ```
 
+```
+## [1] 2304
+```
+
 Total number of steps per day after imputing the NA values (replaced with the mean for the same interval and day of the week)
-```{r}
+
+```r
 activity1 <- activity
 activity1$day <- weekdays(as.Date(activity1[,2]))
 for (i in 1:nrow(activity1)) {
@@ -64,8 +88,11 @@ setnames(steps_per_day, c("date","steps"))
 hist(steps_per_day[,steps])
 ```
 
+![](PA1_template1_files/figure-html/unnamed-chunk-8-1.png) 
+
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 activity1$weekday <- 'weekday'
 activity1[which(activity1$day %in% c('Saturday','Sunday')),5] <- 'weekend'
 DT <- data.table(activity1)
@@ -75,3 +102,5 @@ library(lattice)
 library(datasets)
 xyplot( steps ~ interval | weekday , data = avg_steps, type = "l", layout = c(1,2))
 ```
+
+![](PA1_template1_files/figure-html/unnamed-chunk-9-1.png) 
